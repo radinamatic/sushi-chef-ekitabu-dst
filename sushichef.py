@@ -1,12 +1,13 @@
 #!/usr/bin/env python
 from ricecooker.chefs import SushiChef
-# from ricecooker.classes.nodes import ChannelNode, TopicNode, DocumentNode
-# from ricecooker.classes.files import DocumentFile
+from ricecooker.classes.nodes import ChannelNode, TopicNode, DocumentNode
+from ricecooker.classes.files import DocumentFile
 from ricecooker.classes import nodes, files, questions, licenses
 from ricecooker.config import LOGGER              # Use LOGGER to print messages
 from ricecooker.exceptions import raise_for_invalid_channel
-# from le_utils.constants import exercises, content_kinds, file_formats, format_presets, languages
+from le_utils.constants import exercises, content_kinds, file_formats, format_presets, languages
 from ricecooker.classes.licenses import get_license
+from ricecooker.classes.licenses import SpecialPermissionsLicense
 import re
 import youtube_dl
 
@@ -18,14 +19,15 @@ CHANNEL_DOMAIN = "https://www.youtube.com/c/Ekitabuplus"          # Who is provi
 CHANNEL_LANGUAGE = "en"                                           # Language of channel
 CHANNEL_DESCRIPTION = "Interactive resources for eKitabu Digital Story Time"
 CHANNEL_THUMBNAIL = "https://i.ytimg.com/vi/Egw81i5iZpY/hqdefault.jpg?sqp=-oaymwEXCNACELwBSFryq4qpAwkIARUAAIhCGAE=&rs=AOn4CLB3O9XMBZ3BiLPuyESaz26DX8qX6Q"
+COPYRIGHT_HOLDER = "eKitabu"
+DESCRIPTION = "eKitabu for use in Kolibri"
 
 # Additional constants
 ################################################################################
 
 PLAYLISTS_URL = "https://www.youtube.com/playlist?list=PLfRU3c2GZU0uTjY6ZmlYDHFdU0U_6Hauw"
 AUTHOR = "eKitabu"
-LICENSE = get_license(licenses.CC_BY,
-        copyright_holder = AUTHOR).as_dict()
+LICENCE = SpecialPermissionsLicense("eKitabu", "For use on Kolibri")
 
 # The chef subclass
 ################################################################################
@@ -35,7 +37,7 @@ class DigitalStoryTime(SushiChef):
         "CHANNEL_TITLE": CHANNEL_NAME,
         "CHANNEL_SOURCE_DOMAIN": CHANNEL_DOMAIN,  # where content comes from
         "CHANNEL_SOURCE_ID": CHANNEL_SOURCE_ID,  # CHANGE ME!!!
-        "CHANNEL_LANGUAGE": LANGUAGE,  # le_utils language code
+        "CHANNEL_LANGUAGE": CHANNEL_LANGUAGE,  # le_utils language code
         "CHANNEL_THUMBNAIL": CHANNEL_THUMBNAIL,  # (optional)
         "CHANNEL_DESCRIPTION": CHANNEL_DESCRIPTION,  # (optional)
     }
@@ -63,7 +65,8 @@ class DigitalStoryTime(SushiChef):
   
 
                   # Generate videos based off video entries in dict
-              videos = sorted(info_dict['entries'], key=lambda x: int(re.search("\d+", x['title']).group()))
+              # videos = sorted(info_dict['entries'], key=lambda x: int(re.search("\d+", x['title']).group()))
+              videos = info_dict['entries']
               print( [v['title'] for v in videos])
               import time
               time.sleep(15)
@@ -82,7 +85,7 @@ class DigitalStoryTime(SushiChef):
                   channel.add_child(nodes.VideoNode(
                       title = video['title'],
                       source_id = video['id'],
-                      license = LICENSE,
+                      license = LICENCE,
                       description = video['description'],
                       derive_thumbnail = not thumbnail_url,
                       files = [files.WebVideoFile(video['webpage_url'])],
